@@ -1,1 +1,50 @@
 @import "tailwindcss";
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: "Roboto", sans-serif;
+}
+
+.gold-gradient-text {
+  background: linear-gradient(
+    90deg,
+    #ffffff 0%,
+    #e8d7a1 60%,
+    #c39f20 100%
+  );
+
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.gold-text {
+  color: #c39f20;
+}
+
+.gold-border {
+  border-color: #c39f20;
+}
+
+.gold-bg {
+  background-color: #c39f20;
+}
+
+.card-dark {
+  background-color: #0f0f0f;
+}
+
+.iparty-container {
+  width: 90%;
+  max-width: 1290px;
+  margin: 0 auto;
+}
+
+.section-title {
+  font-size: clamp(1rem, 2vw, 1.5rem);
+  font-weight: 900;
+  text-transform: uppercase;
+}

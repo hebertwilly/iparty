@@ -23,3 +23,22 @@ export const createClientUser = async ({
     updatedAt: serverTimestamp(),
   });
 };
+
+export const createPartnerUser = async ({
+  uid,
+  companyName,
+  email,
+  phone,
+}) => {
+  const userRef = doc(db, "users", uid);
+
+  await setDoc(userRef, {
+    uid,
+    role: "partner",
+    displayName: companyName,
+    email,
+    phone,
+    createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
+  });
+};

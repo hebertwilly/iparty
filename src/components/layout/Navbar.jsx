@@ -39,12 +39,21 @@ export default function Navbar() {
           </Link>
         </div>
 
-        <Link
+        <div className="flex flex-row gap-[20px]">
+          <Link
           to="/login"
           className="text-white text-sm md:text-base font-bold hover:text-black transition"
-        >
-          Para Empresas
-        </Link>
+          >
+            Login Empresa
+          </Link>
+          <Link
+          to="/cadastro/empresa"
+          className="text-white text-sm md:text-base font-bold hover:text-black transition"
+          >
+            Criar conta empresa
+          </Link>
+        </div>
+
       </nav>
     </header>
   );

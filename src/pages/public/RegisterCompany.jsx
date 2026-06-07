@@ -5,10 +5,10 @@ import logo from "../../assets/images/logo.png";
 import Input from "../../components/common/Input";
 
 import { register } from "../../services/auth/authService";
-import { createPartnerUser } from "../../services/users/userService";
+import { createCompanyUser } from "../../services/users/userService";
 import { createCompany } from "../../services/companies/companyService";
 
-export default function RegisterPartner() {
+export default function RegisterCompany() {
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
@@ -51,7 +51,7 @@ export default function RegisterPartner() {
 
       const uid = userCredential.user.uid;
 
-      await createPartnerUser({
+      await createCompanyUser({
         uid,
         companyName: formData.companyName,
         email: formData.email,
@@ -69,7 +69,7 @@ export default function RegisterPartner() {
         description: "",
       });
 
-      navigate("/login");
+      navigate("/empresa/dashboard");
     } catch (err) {
       console.error(err);
       setError("Não foi possível criar a conta da empresa. Verifique os dados informados.");

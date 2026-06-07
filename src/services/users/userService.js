@@ -24,7 +24,7 @@ export const createClientUser = async ({
   });
 };
 
-export const createPartnerUser = async ({
+export const createCompanyUser = async ({
   uid,
   companyName,
   email,
@@ -34,7 +34,7 @@ export const createPartnerUser = async ({
 
   await setDoc(userRef, {
     uid,
-    role: "partner",
+    role: "company",
     displayName: companyName,
     email,
     phone,

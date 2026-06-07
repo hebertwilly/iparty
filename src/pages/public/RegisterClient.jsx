@@ -57,7 +57,7 @@ export default function RegisterClient() {
         address: null,
       });
 
-      navigate("/login");
+      navigate("/cliente/dashboard");
     } catch (err) {
       console.error(err);
       setError("Não foi possível criar sua conta. Verifique os dados informados.");

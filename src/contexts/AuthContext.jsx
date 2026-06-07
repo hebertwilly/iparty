@@ -3,6 +3,7 @@ import { onAuthStateChanged } from "firebase/auth";
 
 import { auth } from "../firebase/config";
 import { logout as logoutService } from "../services/auth/authService";
+import { getUserById } from "../services/users/userService";
 
 const AuthContext = createContext(null);
 
@@ -11,9 +12,27 @@ export function AuthProvider({ children }) {
   const [loadingAuth, setLoadingAuth] = useState(true);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
-      setLoadingAuth(false);
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+      try {
+        setLoadingAuth(true);
+
+        if (currentUser) {
+          const userProfile = await getUserById(currentUser.uid);
+
+          setUser({
+            uid: currentUser.uid,
+            email: currentUser.email,
+            ...userProfile,
+          });
+        } else {
+          setUser(null);
+        }
+      } catch (error) {
+        console.error("Erro ao carregar usuário autenticado:", error);
+        setUser(null);
+      } finally {
+        setLoadingAuth(false);
+      }
     });
 
     return () => unsubscribe();
@@ -30,6 +49,7 @@ export function AuthProvider({ children }) {
         user,
         loadingAuth,
         isAuthenticated: !!user,
+        role: user?.role || null,
         logout,
       }}
     >

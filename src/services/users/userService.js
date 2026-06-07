@@ -1,4 +1,4 @@
-import { doc, setDoc, serverTimestamp } from "firebase/firestore";
+import { doc, setDoc, serverTimestamp, getDoc } from "firebase/firestore";
 import { db } from "../../firebase/config";
 
 export const createClientUser = async ({
@@ -41,4 +41,16 @@ export const createPartnerUser = async ({
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
   });
+};
+
+export const getUserById = async (uid) => {
+  const userRef = doc(db, "users", uid);
+
+  const userSnapshot = await getDoc(userRef);
+
+  if (!userSnapshot.exists()) {
+    return null;
+  }
+
+  return userSnapshot.data();
 };

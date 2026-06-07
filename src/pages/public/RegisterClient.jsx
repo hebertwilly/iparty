@@ -1,11 +1,14 @@
-import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
 
 import logo from "../../assets/images/logo.png";
 import Input from "../../components/common/Input";
-
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { ZodError } from "zod";
+import { registerClientSchema } from "../../schemas/clientSchema";
+import { handleFirebaseError } from "../../utils/errors/handleFirebaseError";
 import { register } from "../../services/auth/authService";
 import { createClientUser } from "../../services/users/userService";
+
 
 export default function RegisterClient() {
   const navigate = useNavigate();
@@ -35,32 +38,35 @@ export default function RegisterClient() {
     event.preventDefault();
     setError("");
 
-    if (formData.password !== formData.confirmPassword) {
-      setError("As senhas não conferem.");
-      return;
-    }
-
     try {
       setLoading(true);
 
+      const validatedData = registerClientSchema.parse(formData);
+
       const userCredential = await register(
-        formData.email,
-        formData.password
+        validatedData.email,
+        validatedData.password
       );
 
       await createClientUser({
         uid: userCredential.user.uid,
-        fullName: formData.fullName,
-        document: formData.document,
-        phone: formData.phone,
-        email: formData.email,
+        fullName: validatedData.fullName,
+        document: validatedData.document,
+        phone: validatedData.phone,
+        email: validatedData.email,
         address: null,
       });
 
       navigate("/cliente/dashboard");
     } catch (err) {
       console.error(err);
-      setError("Não foi possível criar sua conta. Verifique os dados informados.");
+
+      if (err instanceof ZodError) {
+        setError(err.issues[0]?.message || "Verifique os dados informados.");
+        return;
+      }
+
+      setError(handleFirebaseError(err));
     } finally {
       setLoading(false);
     }

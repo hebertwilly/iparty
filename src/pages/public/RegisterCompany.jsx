@@ -1,9 +1,10 @@
-import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-
 import logo from "../../assets/images/logo.png";
 import Input from "../../components/common/Input";
-
+import { useState } from "react";
+import { ZodError } from "zod";
+import { registerCompanySchema } from "../../schemas/companySchema";
+import { handleFirebaseError } from "../../utils/errors/handleFirebaseError";
+import { Link, useNavigate } from "react-router-dom";
 import { register } from "../../services/auth/authService";
 import { createCompanyUser } from "../../services/users/userService";
 import { createCompany } from "../../services/companies/companyService";
@@ -70,43 +71,40 @@ export default function RegisterCompany() {
     event.preventDefault();
     setError("");
 
-    if (formData.password !== formData.confirmPassword) {
-      setError("As senhas não conferem.");
-      return;
-    }
-
     try {
       setLoading(true);
 
+      const validatedData = registerCompanySchema.parse(formData);
+
       const userCredential = await register(
-        formData.email,
-        formData.password
+        validatedData.email,
+        validatedData.password
       );
 
       const uid = userCredential.user.uid;
 
       await createCompanyUser({
         uid,
-        companyName: formData.companyName,
-        email: formData.email,
-        phone: formData.phone,
+        companyName: validatedData.companyName,
+        email: validatedData.email,
+        phone: validatedData.phone,
       });
 
       await createCompany({
         uid,
-        companyName: formData.companyName,
-        cnpj: formData.cnpj,
-        phone: formData.phone,
-        whatsapp: formData.phone,
-        email: formData.email,
-        category: formData.category,
+        companyName: validatedData.companyName,
+        cnpj: validatedData.cnpj,
+        phone: validatedData.phone,
+        whatsapp: validatedData.phone,
+        email: validatedData.email,
+        category: validatedData.category,
         address: {
-          zipCode: formData.zipCode,
-          street: formData.street,
-          number: formData.number,
-          neighborhood: formData.neighborhood,
-          city: formData.city,
-          state: formData.state,
+          zipCode: validatedData.zipCode,
+          street: validatedData.street,
+          number: validatedData.number,
+          neighborhood: validatedData.neighborhood,
+          city: validatedData.city,
+          state: validatedData.state,
           country: "Brasil",
         },
         description: "",
@@ -116,26 +114,12 @@ export default function RegisterCompany() {
     } catch (err) {
       console.error(err);
 
-      if (err.code === "auth/email-already-in-use") {
-        setError(
-          "Este e-mail já está cadastrado. Tente fazer login ou utilize outro e-mail."
-        );
+      if (err instanceof ZodError) {
+        setError(err.issues[0]?.message || "Verifique os dados informados.");
         return;
       }
 
-      if (err.code === "auth/weak-password") {
-        setError("A senha deve ter pelo menos 6 caracteres.");
-        return;
-      }
-
-      if (err.code === "auth/invalid-email") {
-        setError("Informe um e-mail válido.");
-        return;
-      }
-
-      setError(
-        "Não foi possível criar a conta da empresa. Verifique os dados informados."
-      );
+      setError(handleFirebaseError(err));
     } finally {
       setLoading(false);
     }

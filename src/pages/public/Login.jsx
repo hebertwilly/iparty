@@ -1,7 +1,9 @@
-import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-
 import logo from "../../assets/images/logo.png";
+import { useEffect, useState } from "react";
+import { ZodError } from "zod";
+import { loginSchema } from "../../schemas/authSchema";
+import { handleFirebaseError } from "../../utils/errors/handleFirebaseError";
+import { Link, useNavigate } from "react-router-dom"
 import { login } from "../../services/auth/authService";
 import { useAuth } from "../../contexts/AuthContext";
 
@@ -45,10 +47,18 @@ export default function Login() {
     try {
       setLoading(true);
 
-      await login(formData.email, formData.password);
+      const validatedData = loginSchema.parse(formData);
+
+      await login(validatedData.email, validatedData.password);
     } catch (err) {
       console.error(err);
-      setError("E-mail ou senha inválidos.");
+
+      if (err instanceof ZodError) {
+        setError(err.issues[0]?.message || "Verifique os dados informados.");
+        return;
+      }
+
+      setError(handleFirebaseError(err));
     } finally {
       setLoading(false);
     }

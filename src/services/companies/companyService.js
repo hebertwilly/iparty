@@ -9,26 +9,35 @@ export const createCompany = async ({
   whatsapp,
   email,
   category,
-  description,
+  address,
+  description = "",
 }) => {
   const companyRef = doc(db, "companies", uid);
 
   await setDoc(companyRef, {
     uid,
     ownerId: uid,
+
     companyName,
     cnpj,
     phone,
     whatsapp,
     email,
+
     category,
+
+    address,
+
     description,
     logoUrl: "",
     coverImageUrl: "",
     gallery: [],
+
     ratingAverage: 0,
     totalReviews: 0,
+
     isActive: true,
+
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
   });

@@ -7,6 +7,7 @@ import Input from "../../components/common/Input";
 import { register } from "../../services/auth/authService";
 import { createCompanyUser } from "../../services/users/userService";
 import { createCompany } from "../../services/companies/companyService";
+import { getAddressByCep } from "../../services/cep/cepService";
 
 export default function RegisterCompany() {
   const navigate = useNavigate();
@@ -14,13 +15,21 @@ export default function RegisterCompany() {
   const [formData, setFormData] = useState({
     companyName: "",
     cnpj: "",
+    category: "",
     email: "",
     phone: "",
+    zipCode: "",
+    street: "",
+    number: "",
+    neighborhood: "",
+    city: "",
+    state: "",
     password: "",
     confirmPassword: "",
   });
 
   const [loading, setLoading] = useState(false);
+  const [loadingCep, setLoadingCep] = useState(false);
   const [error, setError] = useState("");
 
   const handleChange = (event) => {
@@ -30,6 +39,31 @@ export default function RegisterCompany() {
       ...prev,
       [name]: value,
     }));
+  };
+
+  const handleCepBlur = async () => {
+    if (!formData.zipCode) return;
+
+    try {
+      setError("");
+      setLoadingCep(true);
+
+      const address = await getAddressByCep(formData.zipCode);
+
+      setFormData((prev) => ({
+        ...prev,
+        zipCode: address.zipCode,
+        street: address.street,
+        neighborhood: address.neighborhood,
+        city: address.city,
+        state: address.state,
+      }));
+    } catch (err) {
+      console.error(err);
+      setError("Não foi possível buscar o CEP informado.");
+    } finally {
+      setLoadingCep(false);
+    }
   };
 
   const handleSubmit = async (event) => {
@@ -65,14 +99,43 @@ export default function RegisterCompany() {
         phone: formData.phone,
         whatsapp: formData.phone,
         email: formData.email,
-        category: "",
+        category: formData.category,
+        address: {
+          zipCode: formData.zipCode,
+          street: formData.street,
+          number: formData.number,
+          neighborhood: formData.neighborhood,
+          city: formData.city,
+          state: formData.state,
+          country: "Brasil",
+        },
         description: "",
       });
 
       navigate("/empresa/dashboard");
     } catch (err) {
       console.error(err);
-      setError("Não foi possível criar a conta da empresa. Verifique os dados informados.");
+
+      if (err.code === "auth/email-already-in-use") {
+        setError(
+          "Este e-mail já está cadastrado. Tente fazer login ou utilize outro e-mail."
+        );
+        return;
+      }
+
+      if (err.code === "auth/weak-password") {
+        setError("A senha deve ter pelo menos 6 caracteres.");
+        return;
+      }
+
+      if (err.code === "auth/invalid-email") {
+        setError("Informe um e-mail válido.");
+        return;
+      }
+
+      setError(
+        "Não foi possível criar a conta da empresa. Verifique os dados informados."
+      );
     } finally {
       setLoading(false);
     }
@@ -96,7 +159,7 @@ export default function RegisterCompany() {
 
         <div className="hidden md:flex items-center gap-8">
           <span className="font-bold text-white">
-            Já é um parceiro Iparty? então acesse:
+            Já possui uma conta empresarial? então acesse:
           </span>
 
           <Link
@@ -116,7 +179,7 @@ export default function RegisterCompany() {
       </header>
 
       <section className="min-h-[calc(100vh-90px)] flex items-center justify-center py-16">
-        <form onSubmit={handleSubmit} className="w-full max-w-[420px]">
+        <form onSubmit={handleSubmit} className="w-full max-w-[620px]">
           <h1 className="text-center text-white text-[32px] font-black mb-8">
             Cadastre-se
           </h1>
@@ -145,6 +208,32 @@ export default function RegisterCompany() {
               onChange={handleChange}
               required
             />
+          </div>
+
+          <div className="mt-5">
+            <label className="block text-[#6F6F6F] text-sm mb-2">
+              Categoria de serviço
+            </label>
+
+            <select
+              name="category"
+              value={formData.category}
+              onChange={handleChange}
+              required
+              className="w-full h-[46px] bg-black border border-[#C39F20] rounded-xl px-5 text-[#C39F20] outline-none focus:ring-1 focus:ring-[#C39F20]"
+            >
+              <option value="">Selecione uma categoria</option>
+              <option value="buffet">Buffet</option>
+              <option value="decoracao">Decoração</option>
+              <option value="dj">DJ</option>
+              <option value="musica">Música</option>
+              <option value="espaco-eventos">Espaço para eventos</option>
+              <option value="cerimonial">Cerimonial</option>
+              <option value="seguranca">Segurança</option>
+              <option value="bartender">Bartender</option>
+              <option value="food">Food</option>
+              <option value="outros">Outros</option>
+            </select>
           </div>
 
           <Input
@@ -178,6 +267,64 @@ export default function RegisterCompany() {
                 className="flex-1 bg-black px-5 text-[#C39F20] placeholder:text-[#C39F20] outline-none"
               />
             </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 mt-5">
+            <Input
+              label="CEP"
+              name="zipCode"
+              placeholder={loadingCep ? "Buscando..." : "CEP"}
+              value={formData.zipCode}
+              onChange={handleChange}
+              onBlur={handleCepBlur}
+              required
+            />
+
+            <Input
+              label="Rua"
+              name="street"
+              placeholder="Rua"
+              value={formData.street}
+              onChange={handleChange}
+              required
+            />
+
+            <Input
+              label="Número"
+              name="number"
+              placeholder="Número"
+              value={formData.number}
+              onChange={handleChange}
+              required
+            />
+
+            <Input
+              label="Bairro"
+              name="neighborhood"
+              placeholder="Bairro"
+              value={formData.neighborhood}
+              onChange={handleChange}
+              required
+            />
+
+            <Input
+              label="Cidade"
+              name="city"
+              placeholder="Cidade"
+              value={formData.city}
+              onChange={handleChange}
+              required
+            />
+
+            <Input
+              label="Estado"
+              name="state"
+              placeholder="UF"
+              value={formData.state}
+              onChange={handleChange}
+              maxLength={2}
+              required
+            />
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 mt-5">

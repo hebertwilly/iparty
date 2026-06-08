@@ -57,8 +57,15 @@ export const getCompanyById = async (uid) => {
 export const updateCompany = async (uid, data) => {
   const companyRef = doc(db, "companies", uid);
 
-  await updateDoc(companyRef, {
-    ...data,
+  const allowedData = {
+    companyName: data.companyName,
+    phone: data.phone,
+    whatsapp: data.whatsapp,
+    category: data.category,
+    address: data.address,
+    description: data.description,
     updatedAt: serverTimestamp(),
-  });
+  };
+
+  await updateDoc(companyRef, allowedData);
 };

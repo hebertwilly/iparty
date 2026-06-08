@@ -1,25 +1,32 @@
+import { Link } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 
 export default function CompanyDashboard() {
-  const { user, logout } = useAuth();
+  const { userData, logout } = useAuth();
 
   return (
     <main className="min-h-screen bg-black text-white p-8">
-      <h1 className="text-3xl font-black gold-gradient-text mb-6">
+      <h1 className="text-3xl font-black mb-6">
         Dashboard Empresa
       </h1>
 
-      <div className="card-dark border border-white/10 rounded-2xl p-6">
-        <h2 className="text-xl font-bold mb-4">Empresa autenticada</h2>
+      <div className="space-y-4">
+        <p>
+          Bem-vindo,
+          {" "}
+          {userData?.displayName}
+        </p>
 
-        <pre className="bg-black border border-white/10 rounded-xl p-4 overflow-auto text-sm text-gray-300">
-          {JSON.stringify(user, null, 2)}
-        </pre>
+        <Link
+          to="/empresa/perfil"
+          className="inline-flex px-6 py-3 rounded-xl bg-[#C39F20] text-black font-bold"
+        >
+          Editar Perfil
+        </Link>
 
         <button
-          type="button"
           onClick={logout}
-          className="mt-6 bg-red-500 text-white font-bold px-6 py-3 rounded-xl hover:opacity-90 transition"
+          className="block bg-red-500 px-6 py-3 rounded-xl font-bold"
         >
           Sair
         </button>

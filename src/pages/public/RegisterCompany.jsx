@@ -9,6 +9,7 @@ import { register } from "../../services/auth/authService";
 import { createCompanyUser } from "../../services/users/userService";
 import { createCompany } from "../../services/companies/companyService";
 import { getAddressByCep } from "../../services/cep/cepService";
+import { COMPANY_CATEGORIES } from "../../utils/constants/companyCategories";
 
 export default function RegisterCompany() {
   const navigate = useNavigate();
@@ -16,7 +17,7 @@ export default function RegisterCompany() {
   const [formData, setFormData] = useState({
     companyName: "",
     cnpj: "",
-    category: "",
+    categories: [],
     email: "",
     phone: "",
     zipCode: "",
@@ -41,6 +42,19 @@ export default function RegisterCompany() {
       [name]: value,
     }));
   };
+
+  const handleCategoryChange = (categoryValue) => {
+  setFormData((prev) => {
+    const alreadySelected = prev.categories.includes(categoryValue);
+
+    return {
+      ...prev,
+      categories: alreadySelected
+        ? prev.categories.filter((category) => category !== categoryValue)
+        : [...prev.categories, categoryValue],
+    };
+  });
+};
 
   const handleCepBlur = async () => {
     if (!formData.zipCode) return;
@@ -97,7 +111,7 @@ export default function RegisterCompany() {
         phone: validatedData.phone,
         whatsapp: validatedData.phone,
         email: validatedData.email,
-        category: validatedData.category,
+        categories: validatedData.categories,
         address: {
           zipCode: validatedData.zipCode,
           street: validatedData.street,
@@ -195,29 +209,27 @@ export default function RegisterCompany() {
           </div>
 
           <div className="mt-5">
-            <label className="block text-[#6F6F6F] text-sm mb-2">
-              Categoria de serviço
+            <label className="block text-[#6F6F6F] text-sm mb-3">
+              Categorias de serviço
             </label>
 
-            <select
-              name="category"
-              value={formData.category}
-              onChange={handleChange}
-              required
-              className="w-full h-[46px] bg-black border border-[#C39F20] rounded-xl px-5 text-[#C39F20] outline-none focus:ring-1 focus:ring-[#C39F20]"
-            >
-              <option value="">Selecione uma categoria</option>
-              <option value="buffet">Buffet</option>
-              <option value="decoracao">Decoração</option>
-              <option value="dj">DJ</option>
-              <option value="musica">Música</option>
-              <option value="espaco-eventos">Espaço para eventos</option>
-              <option value="cerimonial">Cerimonial</option>
-              <option value="seguranca">Segurança</option>
-              <option value="bartender">Bartender</option>
-              <option value="food">Food</option>
-              <option value="outros">Outros</option>
-            </select>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-[220px] overflow-y-auto border border-[#C39F20]/40 rounded-xl p-4">
+              {COMPANY_CATEGORIES.map((category) => (
+                <label
+                  key={category.value}
+                  className="flex items-center gap-3 text-sm text-white cursor-pointer"
+                >
+                  <input
+                    type="checkbox"
+                    checked={formData.categories.includes(category.value)}
+                    onChange={() => handleCategoryChange(category.value)}
+                    className="accent-[#C39F20]"
+                  />
+
+                  <span>{category.label}</span>
+                </label>
+              ))}
+            </div>
           </div>
 
           <Input

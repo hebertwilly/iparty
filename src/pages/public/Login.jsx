@@ -1,15 +1,19 @@
-import logo from "../../assets/images/logo.png";
 import { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { ZodError } from "zod";
-import { loginSchema } from "../../schemas/authSchema";
-import { handleFirebaseError } from "../../utils/errors/handleFirebaseError";
-import { Link, useNavigate } from "react-router-dom"
+
+import logo from "../../assets/images/logo.png";
+
 import { login } from "../../services/auth/authService";
 import { useAuth } from "../../contexts/AuthContext";
 
+import { loginSchema } from "../../schemas/authSchema";
+import { handleFirebaseError } from "../../utils/errors/handleFirebaseError";
+
 export default function Login() {
   const navigate = useNavigate();
-  const { user, loadingAuth } = useAuth();
+
+  const { authUser, userData, loadingAuth } = useAuth();
 
   const [formData, setFormData] = useState({
     email: "",
@@ -20,16 +24,16 @@ export default function Login() {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    if (loadingAuth || !user?.role) return;
+    if (loadingAuth || !authUser || !userData?.role) return;
 
-    if (user.role === "client") {
+    if (userData.role === "client") {
       navigate("/cliente/dashboard");
     }
 
-    if (user.role === "company") {
+    if (userData.role === "company") {
       navigate("/empresa/dashboard");
     }
-  }, [user, loadingAuth, navigate]);
+  }, [authUser, userData, loadingAuth, navigate]);
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -176,7 +180,7 @@ export default function Login() {
 
             <button
               type="submit"
-              disabled={loading || loadingAuth}
+              disabled={loading}
               className="w-full max-w-[280px] h-[58px] mx-auto flex items-center justify-center rounded-full border-2 gold-border gold-text text-xl font-black hover:bg-[#C39F20] hover:text-black transition disabled:opacity-60"
             >
               {loading ? "Entrando..." : "Entrar"}

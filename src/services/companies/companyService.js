@@ -15,29 +15,41 @@ export const createCompany = async ({
   phone,
   whatsapp,
   email,
-  category,
+  categories,
   address,
   description = "",
+  instagram = "",
+  website = "",
 }) => {
   const companyRef = doc(db, "companies", uid);
 
   await setDoc(companyRef, {
     uid,
     ownerId: uid,
+
     companyName,
     cnpj,
     phone,
     whatsapp,
     email,
-    category,
+
+    categories,
+
     address,
+
     description,
+    instagram,
+    website,
+
     logoUrl: "",
     coverImageUrl: "",
     gallery: [],
+
     ratingAverage: 0,
     totalReviews: 0,
+
     isActive: true,
+
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
   });
@@ -61,9 +73,11 @@ export const updateCompany = async (uid, data) => {
     companyName: data.companyName,
     phone: data.phone,
     whatsapp: data.whatsapp,
-    category: data.category,
+    categories: data.categories,
     address: data.address,
     description: data.description,
+    instagram: data.instagram,
+    website: data.website,
     updatedAt: serverTimestamp(),
   };
 

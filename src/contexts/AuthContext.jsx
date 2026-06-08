@@ -8,7 +8,8 @@ import { getUserById } from "../services/users/userService";
 const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(null);
+  const [authUser, setAuthUser] = useState(null);
+  const [userData, setUserData] = useState(null);
   const [loadingAuth, setLoadingAuth] = useState(true);
 
   useEffect(() => {
@@ -16,20 +17,25 @@ export function AuthProvider({ children }) {
       try {
         setLoadingAuth(true);
 
-        if (currentUser) {
-          const userProfile = await getUserById(currentUser.uid);
-
-          setUser({
-            uid: currentUser.uid,
-            email: currentUser.email,
-            ...userProfile,
-          });
-        } else {
-          setUser(null);
+        if (!currentUser) {
+          setAuthUser(null);
+          setUserData(null);
+          return;
         }
+
+        const profile = await getUserById(currentUser.uid);
+
+        setAuthUser({
+          uid: currentUser.uid,
+          email: currentUser.email,
+          emailVerified: currentUser.emailVerified,
+        });
+
+        setUserData(profile);
       } catch (error) {
         console.error("Erro ao carregar usuário autenticado:", error);
-        setUser(null);
+        setAuthUser(null);
+        setUserData(null);
       } finally {
         setLoadingAuth(false);
       }
@@ -40,16 +46,18 @@ export function AuthProvider({ children }) {
 
   const logout = async () => {
     await logoutService();
-    setUser(null);
+    setAuthUser(null);
+    setUserData(null);
   };
 
   return (
     <AuthContext.Provider
       value={{
-        user,
+        authUser,
+        userData,
         loadingAuth,
-        isAuthenticated: !!user,
-        role: user?.role || null,
+        isAuthenticated: !!authUser,
+        role: userData?.role || null,
         logout,
       }}
     >

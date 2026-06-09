@@ -6,6 +6,7 @@ import RegisterCompany from "../pages/public/RegisterCompany";
 import ClientDashboard from "../pages/client/ClientDashboard";
 import CompanyDashboard from "../pages/company/CompanyDashboard";
 import CompanyProfile from "../pages/company/CompanyProfile";
+import CompanyProducts from "../pages/company/CompanyProducts";
 import AuthGuard from "./guards/AuthGuard";
 
 export default function AppRoutes() {
@@ -43,6 +44,15 @@ export default function AppRoutes() {
           element={
             <AuthGuard allowedRoles={["company"]}>
               <CompanyProfile />
+            </AuthGuard>
+          }
+        />
+
+        <Route
+          path="/empresa/produtos"
+          element={
+            <AuthGuard allowedRoles={["company"]}>
+              <CompanyProducts />
             </AuthGuard>
           }
         />

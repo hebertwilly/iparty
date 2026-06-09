@@ -93,17 +93,17 @@ export default function CompanyDashboard() {
                     <span>→</span>
                   </Link>
 
-                  <button
-                    disabled
-                    className="flex items-center justify-between rounded-xl border border-white/10 px-5 py-4 text-gray-500 cursor-not-allowed"
+                  <Link
+                    to="/empresa/produtos"
+                    className="flex items-center justify-between rounded-xl border border-[#C39F20]/30 px-5 py-4 hover:bg-[#C39F20] hover:text-black transition"
                   >
                     <span className="flex items-center gap-3">
                       <ClipboardText size={22} />
                       Gerenciar serviços/produtos
                     </span>
 
-                    <span>Em breve</span>
-                  </button>
+                    <span>→</span>
+                  </Link>
                 </div>
               </section>
 

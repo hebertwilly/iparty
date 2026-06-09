@@ -31,4 +31,5 @@ export const COMPANY_CATEGORIES = [
   { value: "maquiagem", label: "Maquiagem" },
   { value: "penteado", label: "Penteado" },
   { value: "outros", label: "Outros" },
+  
 ];
